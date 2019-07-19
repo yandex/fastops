@@ -46,8 +46,8 @@ double precision versions for each operation. Template parameters include speed/
 All the library functionality is directly available via `fastops/core/FastIntrinsics.h` header, but then you should care about hardware compatibility yourself. Tiny AVX and AVX2 hardware detection utility is available via `fastops/core/avx_id.h`.
 
 Below we use the following terms:
-<UL> * x - input value
-<UL> * EPS - relative error: EPS = abs(approx - real) / (abs(real) + 1e-100);
+<UL> * x - input value </UL>
+<UL> * EPS - relative error: EPS = abs(approx - real) / (abs(real) + 1e-100);</UL>
 
 ## Exp
 Compute exponent function.
@@ -61,16 +61,16 @@ void Exp(const double* from, size_t size, double* to);
 
 ### Accuracy by version
 1. float, inexact:
-  <UL> * x < -87: accuracy degrades sharply, exp(x) <= 1.0001 * true_exp(x), usually significatly less. This is due to saturation of the single precision range in inexact version. If denormals are banned the true_exp() will exhibit the same behavior.
-  <UL> * x >= -87: EPS <= 7.21e-06
+  <UL> * x < -87: accuracy degrades sharply, exp(x) <= 1.0001 * true_exp(x), usually significatly less. This is due to saturation of the single precision range in inexact version. If denormals are banned the true_exp() will exhibit the same behavior.</UL>
+  <UL> * x >= -87: EPS <= 7.21e-06</UL>
 2. float, exact:
-  <UL> * x < -87: for the most cases result is accurate. The corner cases are observed only due to different rounding directions of true_exp() and our imlementation. The results may differ up to 2x, but this is acceptable in denornals: the results are quite approximate in any case, these are jsut slightly different approximations.
-  <UL> * x >= -87: EPS <= 4e-06
+  <UL> * x < -87: for the most cases result is accurate. The corner cases are observed only due to different rounding directions of true_exp() and our imlementation. The results may differ up to 2x, but this is acceptable in denornals: the results are quite approximate in any case, these are jsut slightly different approximations.</UL>
+  <UL> * x >= -87: EPS <= 4e-06</UL>
 3. double, inexact
-  <UL> * x < -708.39: exp(x) <= 1.0001 * true_exp(x), usually significatly less.
-  <UL> * x >= -708.39: EPS <= 3.5e-06
+  <UL> * x < -708.39: exp(x) <= 1.0001 * true_exp(x), usually significatly less.</UL>
+  <UL> * x >= -708.39: EPS <= 3.5e-06</UL>
 4. double, exact:
-  <UL> * Entire range: EPS <= 2.3e-9
+  <UL> * Entire range: EPS <= 2.3e-9</UL>
 
 ## Log
 Computes natural log function.
@@ -84,15 +84,15 @@ void Log(const double* from, size_t size, double* to);
 
 ### Accuracy by version
 1. float, inexact:
-  <UL> * x < 1.17613e-38: the result almost stops decreasing around the value of -88, while actual log function still does. This leads result to become significatly greater than actual value. If denormals support is disabled the function will return -inf same as precise one.
-  <UL> * x >= 1.17613e-38: EPS <= 1e-5
+  <UL> * x < 1.17613e-38: the result almost stops decreasing around the value of -88, while actual log function still does. This leads result to become significatly greater than actual value. If denormals support is disabled the function will return -inf same as precise one.</UL>
+  <UL> * x >= 1.17613e-38: EPS <= 1e-5</UL>
 2. float, exact:
-  <UL> * Entire range: EPS <= 4e-7
+  <UL> * Entire range: EPS <= 4e-7</UL>
 3. double, inexact
-  <UL> * x < 2.99279772e-308: the result almost stops decreasing around the value of -708, while actual log function still does. This leads result to become significatly greater than actual value.
-  <UL> * x >= 2.99279772e-308: EPS <= 1e-5
+  <UL> * x < 2.99279772e-308: the result almost stops decreasing around the value of -708, while actual log function still does. This leads result to become significatly greater than actual value.</UL>
+  <UL> * x >= 2.99279772e-308: EPS <= 1e-5</UL>
 4. double, exact:
-  <UL> * Entire range: EPS <= 2e-7
+  <UL> * Entire range: EPS <= 2e-7</UL>
 
 ## Sigmoid
 Computes sigmoid function: sigm(x) = 1.0 / (1.0 + exp(-x)).
@@ -106,14 +106,14 @@ void Sigmoid(const double* from, size_t size, double* to);
 
 ### Accuracy by version
 1. float, inexact:
-  <UL> * Entire range: EPS <= 8e-6
-  <UL> * x >= 1.17613e-38: EPS <= 1e-5
+  <UL> * Entire range: EPS <= 8e-6</UL>
+  <UL> * x >= 1.17613e-38: EPS <= 1e-5</UL>
 2. float, exact:
-  <UL> * Entire range: EPS <= 4.5e-6
+  <UL> * Entire range: EPS <= 4.5e-6</UL>
 3. double, inexact
-  <UL> * Entire range: EPS <= 4e-6
+  <UL> * Entire range: EPS <= 4e-6</UL>
 4. double, exact:
-  <UL> * Entire range: EPS <= 1e-12
+  <UL> * Entire range: EPS <= 1e-12</UL>
 
 ## Tanh
 Computes hyperbolic tangent (tanh) function
@@ -129,15 +129,15 @@ void Tanh(const double* from, size_t size, double* to);
 Due to behavior of tanh around 0 the reative error there is unstable. The computational algorithm is close to sigmoid, so this instability is related to error measuring rather than to fucntion computation. Due to this reason absolute error may provide more adequate indication of accuracy than relative one in some cases.
 
 1. float, inexact:
-  <UL> * [-1, 1]: maximal absolute error is around 1e-06
-  <UL> * Outside [-1, 1]: EPS < 1.1e-06
+  <UL> * [-1, 1]: maximal absolute error is around 1e-06</UL>
+  <UL> * Outside [-1, 1]: EPS < 1.1e-06</UL>
 2. float, exact:
-  <UL> * [-1, 1]: maximal absolute error is around 1.e-06
-  <UL> * Outside [-1, 1]: EPS < 2.5e-07
+  <UL> * [-1, 1]: maximal absolute error is around 1.e-06</UL>
+  <UL> * Outside [-1, 1]: EPS < 2.5e-07</UL>
 3. double, inexact
-  <UL> * Outside [-1, 1]: EPS < 1e-06
-  <UL> * [-1, -0.1] V [0.1, 1]: EPS < 1.6e-05
-  <UL> * [-0.1, -0.01] V [0.01, 0.1]: EPS < 1.2e-04
-  <UL> * [-0.01, 0.01]: EPS <= 3e-04 or maximal absolute error is 1e-06
+  <UL> * Outside [-1, 1]: EPS < 1e-06</UL>
+  <UL> * [-1, -0.1] V [0.1, 1]: EPS < 1.6e-05</UL>
+  <UL> * [-0.1, -0.01] V [0.01, 0.1]: EPS < 1.2e-04</UL>
+  <UL> * [-0.01, 0.01]: EPS <= 3e-04 or maximal absolute error is 1e-06</UL>
 4. double, exact:
-  <UL> * Entire range: EPS <= 1e-11
+  <UL> * Entire range: EPS <= 1e-11</UL>
