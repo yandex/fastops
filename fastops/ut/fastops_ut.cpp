@@ -448,7 +448,7 @@ void TestFastExp() {
     UnitTestFunc<TAvx2Exp<false, false>, TExpCompare<false, false>, float>();
     std::cerr << "  AVX2 INEXACT ALIGNED FLOAT (2/18)..." << std::endl;
     UnitTestFunc<TAvx2Exp<false, true>, TExpCompare<false, false>, float>();
-    std::cerr << "  AVX2 EXACT UNALIGNED FLOAT (3/8)..." << std::endl;
+    std::cerr << "  AVX2 EXACT UNALIGNED FLOAT (3/18)..." << std::endl;
     UnitTestFunc<TAvx2Exp<true, false>, TExpCompare<true, false>, float>();
     std::cerr << "  AVX2 EXACT ALIGNED FLOAT (4/18)..." << std::endl;
     UnitTestFunc<TAvx2Exp<true, true>, TExpCompare<true, false>, float>();
@@ -592,7 +592,7 @@ void TestFastLog() {
     UnitTestFunc<TAvx2Log<false, false>, TLogCompare<false, false>, float>();
     std::cerr << "  AVX2 INEXACT ALIGNED FLOAT (2/18)..." << std::endl;
     UnitTestFunc<TAvx2Log<false, true>, TLogCompare<false, false>, float>();
-    std::cerr << "  AVX2 EXACT UNALIGNED FLOAT (3/8)..." << std::endl;
+    std::cerr << "  AVX2 EXACT UNALIGNED FLOAT (3/18)..." << std::endl;
     UnitTestFunc<TAvx2Log<true, false>, TLogCompare<true, false>, float>();
     std::cerr << "  AVX2 EXACT ALIGNED FLOAT (4/18)..." << std::endl;
     UnitTestFunc<TAvx2Log<true, true>, TLogCompare<true, false>, float>();
@@ -728,7 +728,7 @@ void TestFastSigm() {
     UnitTestFunc<TAvx2Sigm<false, false>, TSigmCompare<false, false>, float>();
     std::cerr << "  AVX2 INEXACT ALIGNED FLOAT (2/18)..." << std::endl;
     UnitTestFunc<TAvx2Sigm<false, true>, TSigmCompare<false, false>, float>();
-    std::cerr << "  AVX2 EXACT UNALIGNED FLOAT (3/8)..." << std::endl;
+    std::cerr << "  AVX2 EXACT UNALIGNED FLOAT (3/18)..." << std::endl;
     UnitTestFunc<TAvx2Sigm<true, false>, TSigmCompare<true, false>, float>();
     std::cerr << "  AVX2 EXACT ALIGNED FLOAT (4/18)..." << std::endl;
     UnitTestFunc<TAvx2Sigm<true, true>, TSigmCompare<true, false>, float>();
@@ -930,7 +930,7 @@ void TestFastTanh() {
     UnitTestFunc<TAvx2Tanh<false, false>, TTanhCompare<false, false>, float>();
     std::cerr << "  AVX2 INEXACT ALIGNED FLOAT (2/18)..." << std::endl;
     UnitTestFunc<TAvx2Tanh<false, true>, TTanhCompare<false, false>, float>();
-    std::cerr << "  AVX2 EXACT UNALIGNED FLOAT (3/8)..." << std::endl;
+    std::cerr << "  AVX2 EXACT UNALIGNED FLOAT (3/18)..." << std::endl;
     UnitTestFunc<TAvx2Tanh<true, false>, TTanhCompare<true, false>, float>();
     std::cerr << "  AVX2 EXACT ALIGNED FLOAT (4/18)..." << std::endl;
     UnitTestFunc<TAvx2Tanh<true, true>, TTanhCompare<true, false>, float>();
