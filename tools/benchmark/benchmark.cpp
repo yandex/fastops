@@ -255,6 +255,11 @@ void RunBenchmark(const TBenchmarkOpts& opts) {
         std::cerr << "requirement alignment < 32 failed" << std::endl;
         exit(1);
     }
+    if (alignment % sizeof(T) != 0) {
+        std::cerr << "requirement on natural alignment failed: alignment should be multiple of " << sizeof(T) << std::endl;
+        exit(1);
+    }
+
     std::vector<T*> inVectors(nVectors);
     std::vector<T*> outVectors(nVectors);
     for (size_t i = 0; i < nVectors; ++i) {
