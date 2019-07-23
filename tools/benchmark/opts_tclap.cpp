@@ -12,7 +12,7 @@ TBenchmarkOpts ParseOptions(int argc, char** argv) {
     cmd.add(nIterArg);
     TCLAP::ValueArg<size_t> vecSizeArg("", "size", "Vector size in elements, default 160", false, 160, "N");
     cmd.add(vecSizeArg);
-    TCLAP::ValueArg<size_t> alignmentArg("", "alignment", "Misalign values by Offset from 32 bit boundary, default 0", false, 0, "Offset");
+    TCLAP::ValueArg<size_t> alignmentArg("", "alignment", "Misalign values by Offset from 32 byte boundary (natural alignment required), default 0", false, 0, "Offset");
     cmd.add(alignmentArg);
     TCLAP::SwitchArg noDenormalsArg("", "nodenorm", "Do not honor denormals (faster)", cmd, false);
     TCLAP::SwitchArg useDoubleArg("", "double", "Use double precision, dafault is single precision", cmd, false);
