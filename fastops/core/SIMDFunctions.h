@@ -10,6 +10,11 @@
 #include <xmmintrin.h>
 #include <immintrin.h>
 
+#if defined(__clang_major__) && !defined(__apple_build_version__) && __clang_major__ >= 8
+#   define Y_HAVE_NEW_INTRINSICS
+#endif
+
+#if !defined(Y_HAVE_NEW_INTRINSICS)
 static __inline__ __m128i
 _mm_loadu_si32(void const* __a) {
     struct __loadu_si32 {
@@ -18,6 +23,7 @@ _mm_loadu_si32(void const* __a) {
     int __u = ((struct __loadu_si32*)__a)->__v;
     return __extension__(__m128i)(__v4si){__u, 0, 0, 0};
 }
+#endif
 
 #if !defined(__clang__)
 static __inline__ __m128i
@@ -30,6 +36,7 @@ _mm_loadu_si64(void const* __a) {
 }
 #endif
 
+#if !defined(Y_HAVE_NEW_INTRINSICS)
 static __inline__ void
 _mm_storeu_si32(void const* __p, __m128i __b) {
     struct __storeu_si32 {
@@ -53,6 +60,7 @@ _mm_storeu_si16(void const* __p, __m128i __b) {
     } __attribute__((__packed__, __may_alias__));
     ((struct __storeu_si16*)__p)->__v = ((__v8hi)__b)[0];
 }
+#endif
 #endif
 
 #ifdef _MSC_VER
