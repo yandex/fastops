@@ -8,6 +8,7 @@
 #include <iostream>
 
 #include <xmmintrin.h>
+#include <pmmintrin.h>
 
 #include <math.h>
 
