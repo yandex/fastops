@@ -25,7 +25,7 @@ _mm_loadu_si32(void const* __a) {
 }
 #endif
 
-#if !defined(__clang__)
+#if !defined(__clang__) && __GNUC__ < 9
 static __inline__ __m128i
 _mm_loadu_si64(void const* __a) {
     struct __loadu_si64 {
