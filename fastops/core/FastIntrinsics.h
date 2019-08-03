@@ -11,11 +11,15 @@
 #pragma warning(push)
 #pragma warning(disable : 4100)
 
-constexpr size_t MyMin(size_t x, size_t y) noexcept {
-    return x < y ? x : y;
-}
 
 namespace NFastOps {
+    /// This method must be called before usage of other functions from this file.
+    void InitializeConstants();
+
+    constexpr size_t MyMin(size_t x, size_t y) noexcept {
+        return x < y ? x : y;
+    }
+
     constexpr size_t HighestPowerOf2(size_t v) noexcept {
         size_t count = 0;
         for (; v; ++count)
@@ -33,130 +37,130 @@ namespace NFastOps {
 
         template <>
         struct S_Constants<4> {
-            static inline const __m256 c1h = _mm256_set1_ps(4.901290717342735958569508618176166906457e-1f);
-            static inline const __m256 c1t_plus_c0t = _mm256_set1_ps(-1.213203435596425732025330863145471178545e-1f);
-            static inline const __m256 c1h_by_c0t_minus_c2h = _mm256_set1_ps(-1.039720770839917964125848182187264852113f);
-            static inline const __m256 c_ln_range_threshold = _mm256_set1_ps(7.071067811865475244008443621048490392848e-1f);
+            static __m256 c1h;
+            static __m256 c1t_plus_c0t;
+            static __m256 c1h_by_c0t_minus_c2h;
+            static __m256 c_ln_range_threshold;
 
-            static inline const __m256 c_ln7_c0 = _mm256_set1_ps(3.274046088544186271578736717276955126405e-1f);
-            static inline const __m256 c_ln7_c1 = _mm256_set1_ps(-2.460077318856183503930805541364448494063e-1f);
-            static inline const __m256 c_ln7_c2 = _mm256_set1_ps(1.969693180733211157137504487566098634881e-1f);
-            static inline const __m256 c_ln7_c3 = _mm256_set1_ps(-1.667744330973693530308560275865086463950e-1f);
-            static inline const __m256 c_ln7_c4 = _mm256_set1_ps(1.510576765737534749447874102473717073429e-1f);
-            static inline const __m256 c_ln7_c5 = _mm256_set1_ps(-1.017552258241698935203275142363246158437e-1f);
+            static __m256 c_ln7_c0;
+            static __m256 c_ln7_c1;
+            static __m256 c_ln7_c2;
+            static __m256 c_ln7_c3;
+            static __m256 c_ln7_c4;
+            static __m256 c_ln7_c5;
 
-            static inline const __m256 c_ln5_c0 = _mm256_set1_ps(3.273555858564201849484689435773550727008e-1f);
-            static inline const __m256 c_ln5_c1 = _mm256_set1_ps(-2.469326754162029197824769224764207256300e-1f);
-            static inline const __m256 c_ln5_c2 = _mm256_set1_ps(2.050803141348481033461102938420647618561e-1f);
-            static inline const __m256 c_ln5_c3 = _mm256_set1_ps(-1.441145595397930709104807611354899546141e-1f);
+            static __m256 c_ln5_c0;
+            static __m256 c_ln5_c1;
+            static __m256 c_ln5_c2;
+            static __m256 c_ln5_c3;
 
-            static inline const __m256 c_pow2_4_c0 = _mm256_set1_ps(-3.068529675993459480848426056697043817499e-1f);
-            static inline const __m256 c_pow2_4_c1 = _mm256_set1_ps(-6.662345431318903025772700509142101007024e-2f);
-            static inline const __m256 c_pow2_4_c2 = _mm256_set1_ps(-1.113930183733997141783833210977614459718e-2f);
-            static inline const __m256 c_pow2_4_c3 = _mm256_set1_ps(-1.461237960055165634948236381176861135936e-3f);
-            static inline const __m256 c_pow2_4_c4 = _mm256_set1_ps(-2.171502549397975884526363201015788921121e-4f);
+            static __m256 c_pow2_4_c0;
+            static __m256 c_pow2_4_c1;
+            static __m256 c_pow2_4_c2;
+            static __m256 c_pow2_4_c3;
+            static __m256 c_pow2_4_c4;
 
-            static inline const __m256 c_pow2_2_c0 = _mm256_set1_ps(-3.069678791803394491901405992213472390777e-1f);
-            static inline const __m256 c_pow2_2_c1 = _mm256_set1_ps(-6.558811624324781017147952441210509604385e-2f);
-            static inline const __m256 c_pow2_2_c2 = _mm256_set1_ps(-1.355574723481491770403079319055785445381e-2f);
+            static __m256 c_pow2_2_c0;
+            static __m256 c_pow2_2_c1;
+            static __m256 c_pow2_2_c2;
 
-            static inline const __m256 c_half_f = _mm256_set1_ps(0.5f);
-            static inline const __m256 c_1_f = _mm256_set1_ps(1.f);
-            static inline const __m256 c_2_f = _mm256_set1_ps(2.f);
-            static inline const __m256 c_1_over_ln_2 = _mm256_set1_ps(1.442695040888963407359924681001892137426f);
-            static inline const __m256 c_neg_1_over_ln_2 = _mm256_set1_ps(-1.442695040888963407359924681001892137426f);
-            static inline const __m256 c_neg_2_over_ln_2 = _mm256_set1_ps(float(-2. * 1.442695040888963407359924681001892137426));
+            static __m256 c_half_f;
+            static __m256 c_1_f;
+            static __m256 c_2_f;
+            static __m256 c_1_over_ln_2;
+            static __m256 c_neg_1_over_ln_2;
+            static __m256 c_neg_2_over_ln_2;
 
-            static inline const __m256 c_ln_2 = _mm256_set1_ps(6.931471805599453094172321214581765680755e-1f);
-            static inline const __m256i c_denorm_const = _mm256_set1_epi32(127);
-            static inline const __m256i c_inf_i = _mm256_castps_si256(_mm256_set1_ps(std::numeric_limits<float>::infinity()));
-            static inline const __m256 c_all_ones = _mm256_castsi256_ps(_mm256_set1_epi32(-1));
-            static inline const __m256i c_mantissa_mask = _mm256_set1_epi32(int(0x00'7F'FF'FF));
+            static __m256 c_ln_2;
+            static __m256i c_denorm_const;
+            static __m256i c_inf_i;
+            static __m256 c_all_ones;
+            static __m256i c_mantissa_mask;
 
             static constexpr int ci_max_pow_2 = 0x43'00'00'00;
-            static inline const __m256 c_max_pow_2 = _mm256_set1_ps(*(const float*)(&ci_max_pow_2)); //128.f
-            static inline const __m256 c_min_denorm_exp_f = _mm256_set1_ps(-150.f);
-            static inline const __m256 c_min_norm_exp_f = _mm256_set1_ps(-127.f);
-            static inline const __m256i c_denorm_offset = _mm256_set1_epi32(-126);
+            static __m256 c_max_pow_2;
+            static __m256 c_min_denorm_exp_f;
+            static __m256 c_min_norm_exp_f;
+            static __m256i c_denorm_offset;
 
             static constexpr int ci_bits_in_mantissa = 23;
             static constexpr int ci_denorm_const = (ci_bits_in_mantissa + 127) << ci_bits_in_mantissa;
-            static inline const __m256 c_denorm_mul_const = _mm256_set1_ps(*(const float*)(&ci_denorm_const));
-            static inline const __m256 c_neg_f_bits_in_mantissa = _mm256_set1_ps(-float(ci_bits_in_mantissa));
-            static inline const __m256 c_neg_f_infinity = _mm256_set1_ps(-std::numeric_limits<float>::infinity());
-            static inline const __m256 c_neg_f_zero = _mm256_set1_ps(-0.f);
+            static __m256 c_denorm_mul_const;
+            static __m256 c_neg_f_bits_in_mantissa;
+            static __m256 c_neg_f_infinity;
+            static __m256 c_neg_f_zero;
         };
 
         template <>
         struct S_Constants<8> {
-            static inline const __m256d c1h = _mm256_set1_pd(4.901290717342735958569508618176166906457e-1);
-            static inline const __m256d c1t_plus_c0t = _mm256_set1_pd(-1.213203435596425732025330863145471178545e-1);
-            static inline const __m256d c1h_by_c0t_minus_c2h = _mm256_set1_pd(-1.039720770839917964125848182187264852113);
-            static inline const __m256d c_ln_range_threshold = _mm256_set1_pd(7.071067811865475244008443621048490392848e-1);
+            static __m256d c1h;
+            static __m256d c1t_plus_c0t;
+            static __m256d c1h_by_c0t_minus_c2h;
+            static __m256d c_ln_range_threshold;
 
-            static inline const __m256d c_ln9_c0 = _mm256_set1_pd(3.274040414833276642293935648031820904022e-1);
-            static inline const __m256d c_ln9_c1 = _mm256_set1_pd(-2.460426108817215117479709510818728283515e-1);
-            static inline const __m256d c_ln9_c2 = _mm256_set1_pd(1.971705651171856040168275563322538385840e-1);
-            static inline const __m256d c_ln9_c3 = _mm256_set1_pd(-1.644082698894967400206460910619729462729e-1);
-            static inline const __m256d c_ln9_c4 = _mm256_set1_pd(1.408917636407928535073460571984541868931e-1);
-            static inline const __m256d c_ln9_c5 = _mm256_set1_pd(-1.273228141550318878611668315296447653434e-1);
-            static inline const __m256d c_ln9_c6 = _mm256_set1_pd(1.205275963912385751945799850342567301852e-1);
-            static inline const __m256d c_ln9_c7 = _mm256_set1_pd(-7.664829052466830813429918673961725340730e-2);
+            static __m256d c_ln9_c0;
+            static __m256d c_ln9_c1;
+            static __m256d c_ln9_c2;
+            static __m256d c_ln9_c3;
+            static __m256d c_ln9_c4;
+            static __m256d c_ln9_c5;
+            static __m256d c_ln9_c6;
+            static __m256d c_ln9_c7;
 
-            static inline const __m256d c_ln7_c0 = _mm256_set1_pd(3.274046088544186271578736717276955126405e-1);
-            static inline const __m256d c_ln7_c1 = _mm256_set1_pd(-2.460077318856183503930805541364448494063e-1);
-            static inline const __m256d c_ln7_c2 = _mm256_set1_pd(1.969693180733211157137504487566098634881e-1);
-            static inline const __m256d c_ln7_c3 = _mm256_set1_pd(-1.667744330973693530308560275865086463950e-1);
-            static inline const __m256d c_ln7_c4 = _mm256_set1_pd(1.510576765737534749447874102473717073429e-1);
-            static inline const __m256d c_ln7_c5 = _mm256_set1_pd(-1.017552258241698935203275142363246158437e-1);
+            static __m256d c_ln7_c0;
+            static __m256d c_ln7_c1;
+            static __m256d c_ln7_c2;
+            static __m256d c_ln7_c3;
+            static __m256d c_ln7_c4;
+            static __m256d c_ln7_c5;
 
-            static inline const __m256d c_ln5_c0 = _mm256_set1_pd(3.273555858564201849484689435773550727008e-1);
-            static inline const __m256d c_ln5_c1 = _mm256_set1_pd(-2.469326754162029197824769224764207256300e-1);
-            static inline const __m256d c_ln5_c2 = _mm256_set1_pd(2.050803141348481033461102938420647618561e-1);
-            static inline const __m256d c_ln5_c3 = _mm256_set1_pd(-1.441145595397930709104807611354899546141e-1);
+            static __m256d c_ln5_c0;
+            static __m256d c_ln5_c1;
+            static __m256d c_ln5_c2;
+            static __m256d c_ln5_c3;
 
-            static inline const __m256d c_pow2_6_c0 = _mm256_set1_pd(-3.068528195372368372826179618775428072217e-1);
-            static inline const __m256d c_pow2_6_c1 = _mm256_set1_pd(-6.662630929237755210810414038195547289735e-2);
-            static inline const __m256d c_pow2_6_c2 = _mm256_set1_pd(-1.112223817301083258745885554952494883219e-2);
-            static inline const __m256d c_pow2_6_c3 = _mm256_set1_pd(-1.503903566909095368304539146883327192756e-3);
-            static inline const __m256d c_pow2_6_c4 = _mm256_set1_pd(-1.711643253068146019790027094116090970622e-4);
-            static inline const __m256d c_pow2_6_c5 = _mm256_set1_pd(-1.606218523854454480443664688362539746237e-5);
-            static inline const __m256d c_pow2_6_c6 = _mm256_set1_pd(-1.863870613873008492165005750904674527977e-6);
+            static __m256d c_pow2_6_c0;
+            static __m256d c_pow2_6_c1;
+            static __m256d c_pow2_6_c2;
+            static __m256d c_pow2_6_c3;
+            static __m256d c_pow2_6_c4;
+            static __m256d c_pow2_6_c5;
+            static __m256d c_pow2_6_c6;
 
-            static inline const __m256d c_pow2_4_c0 = _mm256_set1_pd(-3.068529675993459480848426056697043817499e-1);
-            static inline const __m256d c_pow2_4_c1 = _mm256_set1_pd(-6.662345431318903025772700509142101007024e-2);
-            static inline const __m256d c_pow2_4_c2 = _mm256_set1_pd(-1.113930183733997141783833210977614459718e-2);
-            static inline const __m256d c_pow2_4_c3 = _mm256_set1_pd(-1.461237960055165634948236381176861135936e-3);
-            static inline const __m256d c_pow2_4_c4 = _mm256_set1_pd(-2.171502549397975884526363201015788921121e-4);
+            static __m256d c_pow2_4_c0;
+            static __m256d c_pow2_4_c1;
+            static __m256d c_pow2_4_c2;
+            static __m256d c_pow2_4_c3;
+            static __m256d c_pow2_4_c4;
 
-            static inline const __m256d c_pow2_2_c0 = _mm256_set1_pd(-3.069678791803394491901405992213472390777e-1);
-            static inline const __m256d c_pow2_2_c1 = _mm256_set1_pd(-6.558811624324781017147952441210509604385e-2);
-            static inline const __m256d c_pow2_2_c2 = _mm256_set1_pd(-1.355574723481491770403079319055785445381e-2);
+            static __m256d c_pow2_2_c0;
+            static __m256d c_pow2_2_c1;
+            static __m256d c_pow2_2_c2;
 
-            static inline const __m256d c_half_f = _mm256_set1_pd(0.5);
-            static inline const __m256d c_1_f = _mm256_set1_pd(1.);
-            static inline const __m256d c_2_f = _mm256_set1_pd(2.);
-            static inline const __m256d c_1_over_ln_2 = _mm256_set1_pd(1.442695040888963407359924681001892137426);
-            static inline const __m256d c_neg_1_over_ln_2 = _mm256_set1_pd(-1.442695040888963407359924681001892137426);
-            static inline const __m256d c_neg_2_over_ln_2 = _mm256_set1_pd(-2. * 1.442695040888963407359924681001892137426);
+            static __m256d c_half_f;
+            static __m256d c_1_f;
+            static __m256d c_2_f;
+            static __m256d c_1_over_ln_2;
+            static __m256d c_neg_1_over_ln_2;
+            static __m256d c_neg_2_over_ln_2;
 
-            static inline const __m256d c_ln_2 = _mm256_set1_pd(6.931471805599453094172321214581765680755e-1);
-            static inline const __m256i c_denorm_const = _mm256_set1_epi64x(1023);
-            static inline const __m256i c_inf_i = _mm256_castpd_si256(_mm256_set1_pd(std::numeric_limits<double>::infinity()));
-            static inline const __m256d c_all_ones = _mm256_castsi256_pd(_mm256_set1_epi64x(-1));
-            static inline const __m256i c_mantissa_mask = _mm256_set1_epi64x(int64_t(0x00'0F'FF'FF'FF'FF'FF'FF));
+            static __m256d c_ln_2;
+            static __m256i c_denorm_const;
+            static __m256i c_inf_i;
+            static __m256d c_all_ones;
+            static __m256i c_mantissa_mask;
 
-            static inline const __m256d c_max_pow_2 = _mm256_set1_pd(1024.);
-            static inline const __m256d c_min_denorm_exp_f = _mm256_set1_pd(-1075.);
-            static inline const __m256d c_min_norm_exp_f = _mm256_set1_pd(-1023.);
-            static inline const __m256i c_denorm_offset = _mm256_set1_epi64x(-1022);
+            static __m256d c_max_pow_2;
+            static __m256d c_min_denorm_exp_f;
+            static __m256d c_min_norm_exp_f;
+            static __m256i c_denorm_offset;
 
             static constexpr int ci_bits_in_mantissa = 52;
             static constexpr size_t ci_denorm_const = size_t(ci_bits_in_mantissa + 1023) << ci_bits_in_mantissa;
-            static inline const __m256d c_denorm_mul_const = _mm256_set1_pd(*(const double*)(&ci_denorm_const));
-            static inline const __m256d c_neg_f_bits_in_mantissa = _mm256_set1_pd(-double(ci_bits_in_mantissa));
-            static inline const __m256d c_neg_f_infinity = _mm256_set1_pd(-std::numeric_limits<double>::infinity());
-            static inline const __m256d c_neg_f_zero = _mm256_set1_pd(-0.f);
+            static __m256d c_denorm_mul_const;
+            static __m256d c_neg_f_bits_in_mantissa;
+            static __m256d c_neg_f_infinity;
+            static __m256d c_neg_f_zero;
         };
     }
 

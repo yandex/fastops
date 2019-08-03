@@ -11,6 +11,8 @@
 #endif
 
 namespace NFastOps {
+    void InitializeConstants();
+
     namespace NDetail {
         // YMM XSAVE/XRESTORE OS support should be checked in order to use AVX
         // http://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-optimization-manual.pdf
@@ -47,7 +49,10 @@ namespace NFastOps {
         bool IsAVXEnabled() noexcept {
             int32_t info[NREGS];
             CpuId(1, info);
-            return (info[ECX] & OSXSAVE_BIT) && IsYMMSaveEnabled() && (info[ECX] & AVX_BIT);
+            bool res = (info[ECX] & OSXSAVE_BIT) && IsYMMSaveEnabled() && (info[ECX] & AVX_BIT);
+            if (res)
+                InitializeConstants();
+            return res;
         }
 
         bool IsAVX2Enabled() noexcept {
