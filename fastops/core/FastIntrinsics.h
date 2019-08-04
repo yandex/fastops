@@ -7,19 +7,36 @@
 
 #include <limits>
 #include <algorithm>
+#include <cstring>
+#include <type_traits>
 
 #pragma warning(push)
 #pragma warning(disable : 4100)
 
+constexpr size_t MyMin(size_t x, size_t y) noexcept {
+    return x < y ? x : y;
+}
+
+template <class T>
+inline T ReadUnaligned(const void* from) noexcept {
+    T ret;
+    std::memcpy(&ret, from, sizeof(T));
+    return ret;
+}
+
+template <class Target, class Source>
+Target BitCast(const Source& source) {
+    static_assert(sizeof(Source) == sizeof(Target), "Size mismatch");
+    static_assert(std::is_trivially_copyable<Source>::value, "Source is not trivially copyable");
+    static_assert(std::is_trivial<Target>::value, "Target is not trivial");
+
+    using TNonvolatileSource = std::remove_volatile_t<Source>;
+    using TNonvolatileTarget = std::remove_volatile_t<Target>;
+
+    return ReadUnaligned<TNonvolatileTarget>(&const_cast<const TNonvolatileSource&>(source));
+}
 
 namespace NFastOps {
-    /// This method must be called before usage of other functions from this file.
-    void InitializeConstants();
-
-    constexpr size_t MyMin(size_t x, size_t y) noexcept {
-        return x < y ? x : y;
-    }
-
     constexpr size_t HighestPowerOf2(size_t v) noexcept {
         size_t count = 0;
         for (; v; ++count)
@@ -35,132 +52,202 @@ namespace NFastOps {
         template <size_t I_ElementSize>
         struct S_Constants;
 
+        static inline constexpr __m256 constexpr_mm256_set1_ps(float f) {
+#if defined(_MSC_VER)
+            return {f, f, f, f, f, f, f, f};
+#else
+            return (__m256){f, f, f, f, f, f, f, f};
+#endif
+        };
+
+        static inline constexpr __m256d constexpr_mm256_set1_pd(double d) {
+#if defined(_MSC_VER)
+            return {d, d, d, d};
+#else
+            return (__m256d){d, d, d, d};
+#endif
+        };
+
+        static inline constexpr __m256i constexpr_mm256_set1_epi32(int i) {
+            unsigned int u = static_cast<unsigned int>(i);
+#if defined(_MSC_VER)
+            char first = u & 0xFu;
+            char second = (u >> 8) & 0xFu;
+            char third = (u >> 16) & 0xFu;
+            char fourth = (u >> 24) & 0xFu;
+            return {first, second, third, fourth,
+                    first, second, third, fourth,
+                    first, second, third, fourth,
+                    first, second, third, fourth,
+                    first, second, third, fourth,
+                    first, second, third, fourth,
+                    first, second, third, fourth,
+                    first, second, third, fourth};
+#else
+            long long ul = u | (static_cast<unsigned long long>(u) << 32);
+            return (__m256i){ul, ul, ul, ul};
+#endif
+        }
+
+static inline constexpr __m256i constexpr_mm256_set1_epi64x(long long l) {
+#if defined(_MSC_VER)
+        unsigned long long u = static_cast<unsigned long long>(l);
+        char first = u & 0xFu;
+        char second = (u >> 8) & 0xFu;
+        char third = (u >> 16) & 0xFu;
+        char fourth = (u >> 24) & 0xFu;
+        char fifth = (u >> 32) & 0xFu;
+        char sixth = (u >> 40) & 0xFu;
+        char seventh = (u >> 48) & 0xFu;
+        char eighth = (u >> 56) & 0xFu;
+        return {first, second, third, fourth, fifth, sixth, seventh, eighth,
+                first, second, third, fourth, fifth, sixth, seventh, eighth,
+                first, second, third, fourth, fifth, sixth, seventh, eighth,
+                first, second, third, fourth, fifth, sixth, seventh, eighth};
+#else
+        return (__m256i){ l, l, l, l };
+#endif
+}
+
         template <>
         struct S_Constants<4> {
-            static __m256 c1h;
-            static __m256 c1t_plus_c0t;
-            static __m256 c1h_by_c0t_minus_c2h;
-            static __m256 c_ln_range_threshold;
 
-            static __m256 c_ln7_c0;
-            static __m256 c_ln7_c1;
-            static __m256 c_ln7_c2;
-            static __m256 c_ln7_c3;
-            static __m256 c_ln7_c4;
-            static __m256 c_ln7_c5;
+            // Some constexpr workarounds for gcc, clang and msvc.
+            using Source = float;
+            using Target = int;
+            static constexpr auto Set1 = constexpr_mm256_set1_ps;
+            static constexpr auto CastSi = _mm256_castsi256_ps;
+            static constexpr auto CastPf = _mm256_castps_si256;
 
-            static __m256 c_ln5_c0;
-            static __m256 c_ln5_c1;
-            static __m256 c_ln5_c2;
-            static __m256 c_ln5_c3;
+            static constexpr __m256 c1h = Set1(4.901290717342735958569508618176166906457e-1f);
+            static constexpr __m256 c1t_plus_c0t = Set1(-1.213203435596425732025330863145471178545e-1f);
+            static constexpr __m256 c1h_by_c0t_minus_c2h = Set1(-1.039720770839917964125848182187264852113f);
+            static constexpr __m256 c_ln_range_threshold = Set1(7.071067811865475244008443621048490392848e-1f);
 
-            static __m256 c_pow2_4_c0;
-            static __m256 c_pow2_4_c1;
-            static __m256 c_pow2_4_c2;
-            static __m256 c_pow2_4_c3;
-            static __m256 c_pow2_4_c4;
+            static constexpr __m256 c_ln7_c0 = Set1(3.274046088544186271578736717276955126405e-1f);
+            static constexpr __m256 c_ln7_c1 = Set1(-2.460077318856183503930805541364448494063e-1f);
+            static constexpr __m256 c_ln7_c2 = Set1(1.969693180733211157137504487566098634881e-1f);
+            static constexpr __m256 c_ln7_c3 = Set1(-1.667744330973693530308560275865086463950e-1f);
+            static constexpr __m256 c_ln7_c4 = Set1(1.510576765737534749447874102473717073429e-1f);
+            static constexpr __m256 c_ln7_c5 = Set1(-1.017552258241698935203275142363246158437e-1f);
 
-            static __m256 c_pow2_2_c0;
-            static __m256 c_pow2_2_c1;
-            static __m256 c_pow2_2_c2;
+            static constexpr __m256 c_ln5_c0 = Set1(3.273555858564201849484689435773550727008e-1f);
+            static constexpr __m256 c_ln5_c1 = Set1(-2.469326754162029197824769224764207256300e-1f);
+            static constexpr __m256 c_ln5_c2 = Set1(2.050803141348481033461102938420647618561e-1f);
+            static constexpr __m256 c_ln5_c3 = Set1(-1.441145595397930709104807611354899546141e-1f);
 
-            static __m256 c_half_f;
-            static __m256 c_1_f;
-            static __m256 c_2_f;
-            static __m256 c_1_over_ln_2;
-            static __m256 c_neg_1_over_ln_2;
-            static __m256 c_neg_2_over_ln_2;
+            static constexpr __m256 c_pow2_4_c0 = Set1(-3.068529675993459480848426056697043817499e-1f);
+            static constexpr __m256 c_pow2_4_c1 = Set1(-6.662345431318903025772700509142101007024e-2f);
+            static constexpr __m256 c_pow2_4_c2 = Set1(-1.113930183733997141783833210977614459718e-2f);
+            static constexpr __m256 c_pow2_4_c3 = Set1(-1.461237960055165634948236381176861135936e-3f);
+            static constexpr __m256 c_pow2_4_c4 = Set1(-2.171502549397975884526363201015788921121e-4f);
 
-            static __m256 c_ln_2;
-            static __m256i c_denorm_const;
-            static __m256i c_inf_i;
-            static __m256 c_all_ones;
-            static __m256i c_mantissa_mask;
+            static constexpr __m256 c_pow2_2_c0 = Set1(-3.069678791803394491901405992213472390777e-1f);
+            static constexpr __m256 c_pow2_2_c1 = Set1(-6.558811624324781017147952441210509604385e-2f);
+            static constexpr __m256 c_pow2_2_c2 = Set1(-1.355574723481491770403079319055785445381e-2f);
 
-            static constexpr int ci_max_pow_2 = 0x43'00'00'00;
-            static __m256 c_max_pow_2;
-            static __m256 c_min_denorm_exp_f;
-            static __m256 c_min_norm_exp_f;
-            static __m256i c_denorm_offset;
+            static constexpr __m256 c_half_f = Set1(0.5f);
+            static constexpr __m256 c_1_f = Set1(1.f);
+            static constexpr __m256 c_2_f = Set1(2.f);
+            static constexpr __m256 c_1_over_ln_2 = Set1(1.442695040888963407359924681001892137426f);
+            static constexpr __m256 c_neg_1_over_ln_2 = Set1(-1.442695040888963407359924681001892137426f);
+            static constexpr __m256 c_neg_2_over_ln_2 = Set1(float(-2. * 1.442695040888963407359924681001892137426));
+
+            static constexpr __m256 c_ln_2 = Set1(6.931471805599453094172321214581765680755e-1f);
+            static constexpr __m256i c_denorm_const = constexpr_mm256_set1_epi32(127);
+            static constexpr __m256 c_inf_i = Set1(std::numeric_limits<float>::infinity());
+            static constexpr __m256i c_all_ones = constexpr_mm256_set1_epi32(-1);
+            static constexpr __m256i c_mantissa_mask = constexpr_mm256_set1_epi32(int(0x00'7F'FF'FF));
+
+            static constexpr __m256 c_max_pow_2 = Set1(128.f);
+            static constexpr __m256 c_min_denorm_exp_f = Set1(-150.f);
+            static constexpr __m256 c_min_norm_exp_f = Set1(-127.f);
+            static constexpr __m256i c_denorm_offset = constexpr_mm256_set1_epi32(-126);
 
             static constexpr int ci_bits_in_mantissa = 23;
             static constexpr int ci_denorm_const = (ci_bits_in_mantissa + 127) << ci_bits_in_mantissa;
-            static __m256 c_denorm_mul_const;
-            static __m256 c_neg_f_bits_in_mantissa;
-            static __m256 c_neg_f_infinity;
-            static __m256 c_neg_f_zero;
+            static constexpr __m256 c_neg_f_bits_in_mantissa = Set1(-float(ci_bits_in_mantissa));
+            static constexpr __m256 c_neg_f_infinity = Set1(-std::numeric_limits<float>::infinity());
+            static constexpr __m256 c_neg_f_zero = Set1(-0.f);
         };
 
         template <>
         struct S_Constants<8> {
-            static __m256d c1h;
-            static __m256d c1t_plus_c0t;
-            static __m256d c1h_by_c0t_minus_c2h;
-            static __m256d c_ln_range_threshold;
 
-            static __m256d c_ln9_c0;
-            static __m256d c_ln9_c1;
-            static __m256d c_ln9_c2;
-            static __m256d c_ln9_c3;
-            static __m256d c_ln9_c4;
-            static __m256d c_ln9_c5;
-            static __m256d c_ln9_c6;
-            static __m256d c_ln9_c7;
+            // Some constexpr workarounds for gcc, clang and msvc.
+            using Source = double;
+            using Target = size_t;
+            static constexpr auto Set1 = constexpr_mm256_set1_pd;
+            static constexpr auto CastSi = _mm256_castsi256_pd;
+            static constexpr auto CastPf = _mm256_castpd_si256;
 
-            static __m256d c_ln7_c0;
-            static __m256d c_ln7_c1;
-            static __m256d c_ln7_c2;
-            static __m256d c_ln7_c3;
-            static __m256d c_ln7_c4;
-            static __m256d c_ln7_c5;
+            static constexpr __m256d c1h = Set1(4.901290717342735958569508618176166906457e-1);
+            static constexpr __m256d c1t_plus_c0t = Set1(-1.213203435596425732025330863145471178545e-1);
+            static constexpr __m256d c1h_by_c0t_minus_c2h = Set1(-1.039720770839917964125848182187264852113);
+            static constexpr __m256d c_ln_range_threshold = Set1(7.071067811865475244008443621048490392848e-1);
 
-            static __m256d c_ln5_c0;
-            static __m256d c_ln5_c1;
-            static __m256d c_ln5_c2;
-            static __m256d c_ln5_c3;
+            static constexpr __m256d c_ln9_c0 = Set1(3.274040414833276642293935648031820904022e-1);
+            static constexpr __m256d c_ln9_c1 = Set1(-2.460426108817215117479709510818728283515e-1);
+            static constexpr __m256d c_ln9_c2 = Set1(1.971705651171856040168275563322538385840e-1);
+            static constexpr __m256d c_ln9_c3 = Set1(-1.644082698894967400206460910619729462729e-1);
+            static constexpr __m256d c_ln9_c4 = Set1(1.408917636407928535073460571984541868931e-1);
+            static constexpr __m256d c_ln9_c5 = Set1(-1.273228141550318878611668315296447653434e-1);
+            static constexpr __m256d c_ln9_c6 = Set1(1.205275963912385751945799850342567301852e-1);
+            static constexpr __m256d c_ln9_c7 = Set1(-7.664829052466830813429918673961725340730e-2);
 
-            static __m256d c_pow2_6_c0;
-            static __m256d c_pow2_6_c1;
-            static __m256d c_pow2_6_c2;
-            static __m256d c_pow2_6_c3;
-            static __m256d c_pow2_6_c4;
-            static __m256d c_pow2_6_c5;
-            static __m256d c_pow2_6_c6;
+            static constexpr __m256d c_ln7_c0 = Set1(3.274046088544186271578736717276955126405e-1);
+            static constexpr __m256d c_ln7_c1 = Set1(-2.460077318856183503930805541364448494063e-1);
+            static constexpr __m256d c_ln7_c2 = Set1(1.969693180733211157137504487566098634881e-1);
+            static constexpr __m256d c_ln7_c3 = Set1(-1.667744330973693530308560275865086463950e-1);
+            static constexpr __m256d c_ln7_c4 = Set1(1.510576765737534749447874102473717073429e-1);
+            static constexpr __m256d c_ln7_c5 = Set1(-1.017552258241698935203275142363246158437e-1);
 
-            static __m256d c_pow2_4_c0;
-            static __m256d c_pow2_4_c1;
-            static __m256d c_pow2_4_c2;
-            static __m256d c_pow2_4_c3;
-            static __m256d c_pow2_4_c4;
+            static constexpr __m256d c_ln5_c0 = Set1(3.273555858564201849484689435773550727008e-1);
+            static constexpr __m256d c_ln5_c1 = Set1(-2.469326754162029197824769224764207256300e-1);
+            static constexpr __m256d c_ln5_c2 = Set1(2.050803141348481033461102938420647618561e-1);
+            static constexpr __m256d c_ln5_c3 = Set1(-1.441145595397930709104807611354899546141e-1);
 
-            static __m256d c_pow2_2_c0;
-            static __m256d c_pow2_2_c1;
-            static __m256d c_pow2_2_c2;
+            static constexpr __m256d c_pow2_6_c0 = Set1(-3.068528195372368372826179618775428072217e-1);
+            static constexpr __m256d c_pow2_6_c1 = Set1(-6.662630929237755210810414038195547289735e-2);
+            static constexpr __m256d c_pow2_6_c2 = Set1(-1.112223817301083258745885554952494883219e-2);
+            static constexpr __m256d c_pow2_6_c3 = Set1(-1.503903566909095368304539146883327192756e-3);
+            static constexpr __m256d c_pow2_6_c4 = Set1(-1.711643253068146019790027094116090970622e-4);
+            static constexpr __m256d c_pow2_6_c5 = Set1(-1.606218523854454480443664688362539746237e-5);
+            static constexpr __m256d c_pow2_6_c6 = Set1(-1.863870613873008492165005750904674527977e-6);
 
-            static __m256d c_half_f;
-            static __m256d c_1_f;
-            static __m256d c_2_f;
-            static __m256d c_1_over_ln_2;
-            static __m256d c_neg_1_over_ln_2;
-            static __m256d c_neg_2_over_ln_2;
+            static constexpr __m256d c_pow2_4_c0 = Set1(-3.068529675993459480848426056697043817499e-1);
+            static constexpr __m256d c_pow2_4_c1 = Set1(-6.662345431318903025772700509142101007024e-2);
+            static constexpr __m256d c_pow2_4_c2 = Set1(-1.113930183733997141783833210977614459718e-2);
+            static constexpr __m256d c_pow2_4_c3 = Set1(-1.461237960055165634948236381176861135936e-3);
+            static constexpr __m256d c_pow2_4_c4 = Set1(-2.171502549397975884526363201015788921121e-4);
 
-            static __m256d c_ln_2;
-            static __m256i c_denorm_const;
-            static __m256i c_inf_i;
-            static __m256d c_all_ones;
-            static __m256i c_mantissa_mask;
+            static constexpr __m256d c_pow2_2_c0 = Set1(-3.069678791803394491901405992213472390777e-1);
+            static constexpr __m256d c_pow2_2_c1 = Set1(-6.558811624324781017147952441210509604385e-2);
+            static constexpr __m256d c_pow2_2_c2 = Set1(-1.355574723481491770403079319055785445381e-2);
 
-            static __m256d c_max_pow_2;
-            static __m256d c_min_denorm_exp_f;
-            static __m256d c_min_norm_exp_f;
-            static __m256i c_denorm_offset;
+            static constexpr __m256d c_half_f = Set1(0.5);
+            static constexpr __m256d c_1_f = Set1(1.);
+            static constexpr __m256d c_2_f = Set1(2.);
+            static constexpr __m256d c_1_over_ln_2 = Set1(1.442695040888963407359924681001892137426);
+            static constexpr __m256d c_neg_1_over_ln_2 = Set1(-1.442695040888963407359924681001892137426);
+            static constexpr __m256d c_neg_2_over_ln_2 = Set1(-2. * 1.442695040888963407359924681001892137426);
+
+            static constexpr __m256d c_ln_2 = Set1(6.931471805599453094172321214581765680755e-1);
+            static constexpr __m256i c_denorm_const = constexpr_mm256_set1_epi64x(1023);
+            static constexpr __m256d c_inf_i = Set1(std::numeric_limits<double>::infinity());
+            static constexpr __m256i c_all_ones = constexpr_mm256_set1_epi64x(-1);
+            static constexpr __m256i c_mantissa_mask = constexpr_mm256_set1_epi64x(int64_t(0x00'0F'FF'FF'FF'FF'FF'FF));
+
+            static constexpr __m256d c_max_pow_2 = Set1(1024.);
+            static constexpr __m256d c_min_denorm_exp_f = Set1(-1075.);
+            static constexpr __m256d c_min_norm_exp_f = Set1(-1023.);
+            static constexpr __m256i c_denorm_offset = constexpr_mm256_set1_epi64x(-1022);
 
             static constexpr int ci_bits_in_mantissa = 52;
             static constexpr size_t ci_denorm_const = size_t(ci_bits_in_mantissa + 1023) << ci_bits_in_mantissa;
-            static __m256d c_denorm_mul_const;
-            static __m256d c_neg_f_bits_in_mantissa;
-            static __m256d c_neg_f_infinity;
-            static __m256d c_neg_f_zero;
+            static constexpr __m256d c_neg_f_bits_in_mantissa = Set1(-double(ci_bits_in_mantissa));
+            static constexpr __m256d c_neg_f_infinity = Set1(-std::numeric_limits<double>::infinity());
+            static constexpr __m256d c_neg_f_zero = Set1(-0.f);
         };
     }
 
@@ -644,7 +731,7 @@ namespace NFastOps {
         if constexpr (I_Exact) {
             t_f ymm_denorm_mask = t::CastF(t::CmpEqI(ymm_e, t::CastI(ymm_zero_f)));
             if (!t::TestZF(ymm_denorm_mask, ymm_denorm_mask)) {
-                t_f ymm_denorm_coef = t::BlendVF(t::Cast(c_one_in), t::Cast(c::c_denorm_mul_const), ymm_denorm_mask);
+                t_f ymm_denorm_coef = t::BlendVF(t::Cast(c_one_in), t::Cast(c::Set1(BitCast<typename c::Source>(c::ci_denorm_const))), ymm_denorm_mask);
                 ymm_x = t::Mul(ymm_x_orig, ymm_denorm_coef);
                 ymm_e_float = t::BlendVF(ymm_zero_f, t::Cast(c::c_neg_f_bits_in_mantissa), ymm_denorm_mask);
                 ymm_e = t::SRLI(t::CastI(ymm_x), c::ci_bits_in_mantissa);
@@ -677,19 +764,19 @@ namespace NFastOps {
         ymm_res = t::Sub(ymm_res, t::Cast(c::c1h_by_c0t_minus_c2h));
         ymm_res = t::FMADD(ymm_res, ymm_x_minus_1, t::Mul(ymm_e_float, t::Cast(c::c_ln_2)));
 
-        t_f ymm_spec_case_mask = t::CastF(t::CmpEqI(t::CastI(ymm_x_orig), t::Cast(c::c_inf_i))); // if input is = inf
+        t_f ymm_spec_case_mask = t::CastF(t::CmpEqI(t::CastI(ymm_x_orig), t::Cast(c::CastPf(c::c_inf_i)))); // if input is = inf
         t_f ymm_has_correct_values = t::template CmpFM<_CMP_GT_OQ>(ymm_x_orig, ymm_zero_f);
         ymm_has_correct_values = t::AndNotF(ymm_spec_case_mask, ymm_has_correct_values);
 
-        if (!t::TestCF(ymm_has_correct_values, t::Cast(c::c_all_ones))) {
+        if (!t::TestCF(ymm_has_correct_values, t::Cast(c::CastSi(c::c_all_ones)))) {
             t_f ymm_zero_mask = t::CmpEqF(ymm_x_orig, ymm_zero_f); // using float comparison to force -0.f to return -inf, as recommended by IEEE 754-2008
             ymm_spec_case_mask = t::OrF(ymm_spec_case_mask, ymm_zero_mask);
 
-            t_f ymm_res_spec_case = t::BlendVF(t::CastF(t::Cast(c::c_inf_i)), t::Cast(c::c_neg_f_infinity), ymm_zero_mask);
+            t_f ymm_res_spec_case = t::BlendVF(t::CastF(t::Cast(c::CastPf(c::c_inf_i))), t::Cast(c::c_neg_f_infinity), ymm_zero_mask);
             ymm_res_spec_case = t::BlendVF(ymm_x_orig, ymm_res_spec_case, ymm_spec_case_mask);
 
             t_f ymm_inp_qnan_mask = t::template CmpFM<_CMP_EQ_OQ>(ymm_x_orig, ymm_x_orig); // getting an input's nan's mask (inverted)
-            ymm_inp_qnan_mask = t::XorF(ymm_inp_qnan_mask, t::Cast(c::c_all_ones));        // un-inverting input's nan's mask
+            ymm_inp_qnan_mask = t::XorF(ymm_inp_qnan_mask, t::Cast(c::CastSi(c::c_all_ones)));        // un-inverting input's nan's mask
             ymm_spec_case_mask = t::OrF(ymm_spec_case_mask, ymm_inp_qnan_mask);            // adding the positions of the input nans' to the mask, so they are blended in the result as well
             t_f ymm_res_qnan_mask = t::AndF(ymm_x_orig, t::Cast(c::c_neg_f_zero));
 
