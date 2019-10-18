@@ -5,7 +5,7 @@ This small library enables acceleration of bulk calls of certain math functions 
 
 The library itself implements operations using AVX and AVX2, but will work on any hardware with at least SSE2 support. `fastops/fastops.h` header provides interface for best versions of functions via runtime CPU dispatch. Pre-AVX implementation uses fmath library, which works reasonably well with SSE. All functions are approximate, yet quite precise. Accuracy of each operation is detailed below along with operation description. All implementation architectures (SSE, AVX or AVX2) share same accuracy while increasing performance.
 
-Core implementation (`fastops/core/FastIntrinsics.h`) contains versions for fixed-size arrays that produce completely unrolled code for uncompromized preformance. These may slowdown compilation and thus are currently not exposed via high-level dispatched interfaces. Be careful when using these versions: long fixed-size arrays may lead to etxreme code bloat. The regular versions perform on par with these ones if your arrays are larger than 512 bytes. 
+Core implementation (`fastops/core/FastIntrinsics.h`) contains versions for fixed-size arrays that produce completely unrolled code for uncompromized performance. These may slowdown compilation and thus are currently not exposed via high-level dispatched interfaces. Be careful when using these versions: long fixed-size arrays may lead to etxreme code bloat. The regular versions perform on par with these ones if your arrays are larger than 512 bytes. 
 
 The quote from Mikhail Parakhin, the Yandex CTO and library creator:
 //In its spirit the library is aimed to aid vectorization of any compute. Just code up the performer class similar to the existing ones and let it fly. Current performers include not only compute, but also memset/memcopy/memmove operations that are always inlined and so work much faster for short arrays. On short strings gain may be as high as 2x.//
@@ -61,13 +61,13 @@ void Exp(const double* from, size_t size, double* to);
 
 ### Accuracy by version
 1. float, inexact:
-  <UL> * x < -87: accuracy degrades sharply, exp(x) <= 1.0001 * true_exp(x), usually significatly less. This is due to saturation of the single precision range in inexact version. If denormals are banned the true_exp() will exhibit the same behavior.</UL>
+  <UL> * x < -87: accuracy degrades sharply, exp(x) <= 1.0001 * true_exp(x), usually significantly less. This is due to saturation of the single precision range in inexact version. If denormals are banned the true_exp() will exhibit the same behavior.</UL>
   <UL> * x >= -87: EPS <= 7.21e-06</UL>
 2. float, exact:
-  <UL> * x < -87: for the most cases result is accurate. The corner cases are observed only due to different rounding directions of true_exp() and our imlementation. The results may differ up to 2x, but this is acceptable in denornals: the results are quite approximate in any case, these are jsut slightly different approximations.</UL>
+  <UL> * x < -87: for the most cases result is accurate. The corner cases are observed only due to different rounding directions of true_exp() and our imlementation. The results may differ up to 2x, but this is acceptable in denornals: the results are quite approximate in any case, these are just slightly different approximations.</UL>
   <UL> * x >= -87: EPS <= 4e-06</UL>
 3. double, inexact
-  <UL> * x < -708.39: exp(x) <= 1.0001 * true_exp(x), usually significatly less.</UL>
+  <UL> * x < -708.39: exp(x) <= 1.0001 * true_exp(x), usually significantly less.</UL>
   <UL> * x >= -708.39: EPS <= 3.5e-06</UL>
 4. double, exact:
   <UL> * Entire range: EPS <= 2.3e-9</UL>
@@ -84,12 +84,12 @@ void Log(const double* from, size_t size, double* to);
 
 ### Accuracy by version
 1. float, inexact:
-  <UL> * x < 1.17613e-38: the result almost stops decreasing around the value of -88, while actual log function still does. This leads result to become significatly greater than actual value. If denormals support is disabled the function will return -inf same as precise one.</UL>
+  <UL> * x < 1.17613e-38: the result almost stops decreasing around the value of -88, while actual log function still does. This leads result to become significantly greater than actual value. If denormals support is disabled the function will return -inf same as precise one.</UL>
   <UL> * x >= 1.17613e-38: EPS <= 1e-5</UL>
 2. float, exact:
   <UL> * Entire range: EPS <= 4e-7</UL>
 3. double, inexact
-  <UL> * x < 2.99279772e-308: the result almost stops decreasing around the value of -708, while actual log function still does. This leads result to become significatly greater than actual value.</UL>
+  <UL> * x < 2.99279772e-308: the result almost stops decreasing around the value of -708, while actual log function still does. This leads result to become significantly greater than actual value.</UL>
   <UL> * x >= 2.99279772e-308: EPS <= 1e-5</UL>
 4. double, exact:
   <UL> * Entire range: EPS <= 2e-7</UL>
@@ -126,7 +126,7 @@ void Tanh(const double* from, size_t size, double* to);
 ```
 
 ### Accuracy by version
-Due to behavior of tanh around 0 the reative error there is unstable. The computational algorithm is close to sigmoid, so this instability is related to error measuring rather than to fucntion computation. Due to this reason absolute error may provide more adequate indication of accuracy than relative one in some cases.
+Due to behavior of tanh around 0 the reative error there is unstable. The computational algorithm is close to sigmoid, so this instability is related to error measuring rather than to function computation. Due to this reason absolute error may provide more adequate indication of accuracy than relative one in some cases.
 
 1. float, inexact:
   <UL> * [-1, 1]: maximal absolute error is around 1e-06</UL>
