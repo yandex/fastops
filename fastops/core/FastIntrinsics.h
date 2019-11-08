@@ -89,25 +89,30 @@ namespace NFastOps {
 #endif
         }
 
-static inline constexpr __m256i constexpr_mm256_set1_epi64x(long long l) {
+        static inline constexpr __m256i constexpr_mm256_set1_epi64x(long long l) {
 #if defined(_MSC_VER)
-        unsigned long long u = static_cast<unsigned long long>(l);
-        char first = u & 0xFu;
-        char second = (u >> 8) & 0xFu;
-        char third = (u >> 16) & 0xFu;
-        char fourth = (u >> 24) & 0xFu;
-        char fifth = (u >> 32) & 0xFu;
-        char sixth = (u >> 40) & 0xFu;
-        char seventh = (u >> 48) & 0xFu;
-        char eighth = (u >> 56) & 0xFu;
-        return {first, second, third, fourth, fifth, sixth, seventh, eighth,
-                first, second, third, fourth, fifth, sixth, seventh, eighth,
-                first, second, third, fourth, fifth, sixth, seventh, eighth,
-                first, second, third, fourth, fifth, sixth, seventh, eighth};
+            unsigned long long u = static_cast<unsigned long long>(l);
+            char first = u & 0xFu;
+            char second = (u >> 8) & 0xFu;
+            char third = (u >> 16) & 0xFu;
+            char fourth = (u >> 24) & 0xFu;
+            char fifth = (u >> 32) & 0xFu;
+            char sixth = (u >> 40) & 0xFu;
+            char seventh = (u >> 48) & 0xFu;
+            char eighth = (u >> 56) & 0xFu;
+            return {first, second, third, fourth, fifth, sixth, seventh, eighth,
+                    first, second, third, fourth, fifth, sixth, seventh, eighth,
+                    first, second, third, fourth, fifth, sixth, seventh, eighth,
+                    first, second, third, fourth, fifth, sixth, seventh, eighth};
 #else
-        return (__m256i){ l, l, l, l };
+            return (__m256i){ l, l, l, l };
 #endif
-}
+        }
+
+        static inline constexpr auto constexpr_mm256_castsi256_ps = [](__m256i x) {return _mm256_castsi256_ps(x);};
+        static inline constexpr auto constexpr_mm256_castps_si256 = [](__m256 x) {return _mm256_castps_si256(x);};
+        static inline constexpr auto constexpr_mm256_castsi256_pd = [](__m256i x) {return _mm256_castsi256_pd(x);};
+        static inline constexpr auto constexpr_mm256_castpd_si256 = [](__m256d x) {return _mm256_castpd_si256(x);};
 
         template <>
         struct S_Constants<4> {
@@ -116,8 +121,8 @@ static inline constexpr __m256i constexpr_mm256_set1_epi64x(long long l) {
             using Source = float;
             using Target = int;
             static constexpr auto Set1 = constexpr_mm256_set1_ps;
-            static constexpr auto CastSi = _mm256_castsi256_ps;
-            static constexpr auto CastPf = _mm256_castps_si256;
+            static constexpr auto CastSi = constexpr_mm256_castsi256_ps;
+            static constexpr auto CastPf = constexpr_mm256_castps_si256;
 
             static constexpr __m256 c1h = Set1(4.901290717342735958569508618176166906457e-1f);
             static constexpr __m256 c1t_plus_c0t = Set1(-1.213203435596425732025330863145471178545e-1f);
@@ -178,8 +183,8 @@ static inline constexpr __m256i constexpr_mm256_set1_epi64x(long long l) {
             using Source = double;
             using Target = size_t;
             static constexpr auto Set1 = constexpr_mm256_set1_pd;
-            static constexpr auto CastSi = _mm256_castsi256_pd;
-            static constexpr auto CastPf = _mm256_castpd_si256;
+            static constexpr auto CastSi = constexpr_mm256_castsi256_pd;
+            static constexpr auto CastPf = constexpr_mm256_castpd_si256;
 
             static constexpr __m256d c1h = Set1(4.901290717342735958569508618176166906457e-1);
             static constexpr __m256d c1t_plus_c0t = Set1(-1.213203435596425732025330863145471178545e-1);
