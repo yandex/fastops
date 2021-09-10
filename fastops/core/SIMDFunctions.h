@@ -14,7 +14,7 @@
 #   define Y_HAVE_NEW_INTRINSICS
 #endif
 
-#if !defined(Y_HAVE_NEW_INTRINSICS) && __GNUC__ < 11
+#if !defined(Y_HAVE_NEW_INTRINSICS)
 static __inline__ __m128i
 _mm_loadu_si32(void const* __a) {
     struct __loadu_si32 {
