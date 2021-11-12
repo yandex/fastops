@@ -38,9 +38,9 @@ namespace NFastOps {
 
         static void CpuId(int32_t op, int32_t* res) noexcept {
 #if defined(_MSC_VER) && !defined(__clang__)
-            __cpuid((int*)res, op);
+            __cpuidex((int*)res, op, 0);
 #else
-            __cpuid(op, res[EAX], res[EBX], res[ECX], res[EDX]);
+            __cpuid_count(op, 0, res[EAX], res[EBX], res[ECX], res[EDX]);
 #endif
         }
 
